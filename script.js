@@ -1,8 +1,8 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   // Theme Toggle
   const themeToggle = document.getElementById("themeSwitch");
   if (themeToggle) {
-    themeToggle.addEventListener("change", function() {
+    themeToggle.addEventListener("change", function () {
       if (this.checked) {
         document.body.classList.add("dark");
       } else {
@@ -13,9 +13,10 @@ document.addEventListener("DOMContentLoaded", function() {
     console.error("themeSwitch element not found");
   }
 
+  // Hamburger Menu
   const hamburgerMenu = document.getElementById("hamburgerMenu");
   if (hamburgerMenu) {
-    hamburgerMenu.addEventListener("click", function() {
+    hamburgerMenu.addEventListener("click", function () {
       const navMenu = document.getElementById("navMenu");
       if (navMenu) {
         navMenu.classList.toggle("open");
@@ -27,7 +28,24 @@ document.addEventListener("DOMContentLoaded", function() {
     console.error("hamburgerMenu element not found");
   }
 
-})
+  // Close Modals if clicked outside content
+  const loginModal = document.getElementById("loginModal");
+  if (loginModal) {
+    loginModal.addEventListener("click", function (e) {
+      if (e.target === loginModal) {
+        loginModal.style.display = "none";
+      }
+    });
+  }
+  const signupModal = document.getElementById("signupModal");
+  if (signupModal) {
+    signupModal.addEventListener("click", function (e) {
+      if (e.target === signupModal) {
+        signupModal.style.display = "none";
+      }
+    });
+  }
+});
 
 /**********************
  * Global Variables
@@ -41,7 +59,7 @@ let currentImageIndex = -1; // Index in renderedImages for popup carousel
 const batchSize = 20;      // Number of images to load per batch
 let slideshowInterval = null; // For slideshow auto-advance
 
-// For authentication & favorites (unchanged)
+// For localStorage-based authentication & favorites
 let favoriteImages = [];   // Array to store favorite image URLs (original)
 let currentUser = null;    // Logged-in username
 
@@ -74,13 +92,11 @@ const baseLinks = [
   "https://i.imx.to/i/2025/02/22/5y8s3x.jpg"
 ];
 
-// Allowed characters for random string generation
 const allowedChars = "abcdefghijklmnopqrstuvwxyz0123456789";
 
 /**********************
  * Utility Functions
  **********************/
-// Debounce to limit rapid calls
 function debounce(func, delay) {
   let timeout;
   return function () {
@@ -89,14 +105,12 @@ function debounce(func, delay) {
   };
 }
 
-// Compute images per row based on container width.
 function computeImagesPerRow() {
   const container = document.getElementById("imagesGrid");
   const count = Math.floor(container.offsetWidth / 220);
   return count > 0 ? count : 1;
 }
 
-// Generate a random string of specified length.
 function generateRandomString(length) {
   let result = "";
   for (let i = 0; i < length; i++) {
@@ -106,7 +120,6 @@ function generateRandomString(length) {
   return result;
 }
 
-// Modify a URL: remove last 3 characters before ".jpg" and append 3 random characters.
 function modifyLink(link) {
   const jpgIndex = link.lastIndexOf(".jpg");
   if (jpgIndex === -1) return link;
@@ -119,7 +132,6 @@ function modifyLink(link) {
 /**********************
  * Image Generation & Grouping
  **********************/
-// Load a new batch of images.
 function loadNextBatch() {
   imagesPerRow = computeImagesPerRow();
   for (let i = 0; i < batchSize; i++) {
@@ -127,7 +139,6 @@ function loadNextBatch() {
     const original = modifyLink(randomBase);
     const display = original.replace("/i/", "/t/");
     
-    // Create a temporary image to detect orientation.
     const tempImg = new Image();
     tempImg.src = display;
     tempImg.dataset.original = original;
@@ -136,36 +147,26 @@ function loadNextBatch() {
     tempImg.onload = function() {
       const orientation = (tempImg.naturalWidth >= tempImg.naturalHeight) ? "landscape" : "portrait";
       const imgData = { original, display, orientation };
-      
-      // Add to respective arrays.
       if (orientation === "landscape") {
         landscapeImages.push(imgData);
       } else {
         portraitImages.push(imgData);
       }
-      
-      // Also push to combined global array.
       allImages.push(imgData);
-      
-      // Try to render new complete rows.
       renderGallery();
     };
   }
 }
 
-// Render new complete rows without clearing already rendered rows.
 function renderGallery() {
   const gallery = document.getElementById("imagesGrid");
-  // We'll try to render complete rows from both portrait and landscape arrays.
-  
-  // Render portrait rows.
+  // Render complete rows from portrait images.
   while (portraitImages.length - renderedImages.filter(img => img.orientation === "portrait").length >= imagesPerRow) {
     const startIdx = renderedImages.filter(img => img.orientation === "portrait").length;
     const rowImages = portraitImages.slice(startIdx, startIdx + imagesPerRow);
     appendRow(rowImages);
   }
-  
-  // Render landscape rows.
+  // Render complete rows from landscape images.
   while (landscapeImages.length - renderedImages.filter(img => img.orientation === "landscape").length >= imagesPerRow) {
     const startIdx = renderedImages.filter(img => img.orientation === "landscape").length;
     const rowImages = landscapeImages.slice(startIdx, startIdx + imagesPerRow);
@@ -173,20 +174,17 @@ function renderGallery() {
   }
 }
 
-// Append a row to the gallery and update renderedImages order.
 function appendRow(imagesArray) {
   const rowDiv = document.createElement("div");
   rowDiv.className = "gallery-row";
   imagesArray.forEach((imgData) => {
     const container = createImageContainer(imgData);
     rowDiv.appendChild(container);
-    // Record the image in renderedImages in the order of appearance.
     renderedImages.push(imgData);
   });
   document.getElementById("imagesGrid").appendChild(rowDiv);
 }
 
-// Create an image container element.
 function createImageContainer(imgData) {
   const container = document.createElement("div");
   container.className = "image-container";
@@ -198,7 +196,6 @@ function createImageContainer(imgData) {
   img.dataset.original = imgData.original;
   img.dataset.orientation = imgData.orientation;
   
-  // Hover: after 2 sec, switch to original; revert on mouseleave.
   let hoverTimeout;
   img.addEventListener("mouseenter", () => {
     hoverTimeout = setTimeout(() => {
@@ -210,13 +207,11 @@ function createImageContainer(imgData) {
     img.src = img.dataset.display;
   });
   
-  // Click: determine index in renderedImages and open popup.
   img.addEventListener("click", () => {
     currentImageIndex = renderedImages.findIndex(obj => obj.original === img.dataset.original);
     openPopup(currentImageIndex);
   });
   
-  // Favorite icon overlay.
   const favBtn = document.createElement("span");
   favBtn.className = "favorite-btn";
   favBtn.innerHTML = "&#9829;";
@@ -236,7 +231,7 @@ function createImageContainer(imgData) {
 function openPopup(index) {
   const popupOverlay = document.getElementById("popupOverlay");
   const popupImage = document.getElementById("popupImage");
-  popupImage.src = renderedImages[index].original;
+  popupImage.src = allImages[index].original;
   popupOverlay.style.display = "flex";
   document.getElementById("slideshowBtn").innerHTML = "►";
   clearInterval(slideshowInterval);
@@ -249,7 +244,7 @@ function closePopup() {
 
 function downloadCurrentImage() {
   const link = document.createElement("a");
-  link.href = renderedImages[currentImageIndex].original;
+  link.href = allImages[currentImageIndex].original;
   link.download = "";
   document.body.appendChild(link);
   link.click();
@@ -257,15 +252,15 @@ function downloadCurrentImage() {
 }
 
 function showPrevImage() {
-  if (renderedImages.length === 0) return;
-  currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : renderedImages.length - 1;
-  document.getElementById("popupImage").src = renderedImages[currentImageIndex].original;
+  if (allImages.length === 0) return;
+  currentImageIndex = (currentImageIndex > 0) ? currentImageIndex - 1 : allImages.length - 1;
+  document.getElementById("popupImage").src = allImages[currentImageIndex].original;
 }
 
 function showNextImage() {
-  if (renderedImages.length === 0) return;
-  currentImageIndex = (currentImageIndex < renderedImages.length - 1) ? currentImageIndex + 1 : 0;
-  document.getElementById("popupImage").src = renderedImages[currentImageIndex].original;
+  if (allImages.length === 0) return;
+  currentImageIndex = (currentImageIndex < allImages.length - 1) ? currentImageIndex + 1 : 0;
+  document.getElementById("popupImage").src = allImages[currentImageIndex].original;
 }
 
 function toggleSlideshow() {
@@ -296,18 +291,15 @@ async function toggleFavorite(url, favBtn) {
     favoriteImages.splice(idx, 1);
     favBtn.classList.remove("favorite");
   }
-  try {
-    await fetch('/api/favorites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ favorites: favoriteImages })
-    });
-  } catch (error) {
-    console.error("Error updating favorites:", error);
+  // Update localStorage for current user.
+  let userKey = "user_" + currentUser;
+  let userData = JSON.parse(localStorage.getItem(userKey));
+  if (userData) {
+    userData.favorites = favoriteImages;
+    localStorage.setItem(userKey, JSON.stringify(userData));
   }
 }
 
-// For Favorites Page: Render favorites gallery with grouping logic.
 function renderFavoritesGallery() {
   const container = document.getElementById("favoritesGrid");
   container.innerHTML = "";
@@ -360,79 +352,47 @@ function groupAndRenderFavorites(favData) {
 }
 
 /**********************
- * Authentication Functions (Backend API)
+ * Authentication Functions (LocalStorage)
  **********************/
 async function signupUser(username, password) {
-  try {
-    const response = await fetch('/api/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await response.json();
-    if (response.ok) {
-      alert(data.message);
-      return true;
-    } else {
-      alert(data.error);
-      return false;
-    }
-  } catch (error) {
-    console.error("Signup error:", error);
-    alert("Error during signup.");
+  let userKey = "user_" + username;
+  if (localStorage.getItem(userKey)) {
+    alert("Username already exists.");
     return false;
   }
+  const userData = { password: password, favorites: [] };
+  localStorage.setItem(userKey, JSON.stringify(userData));
+  alert("Signup successful! Please log in.");
+  return true;
 }
 
 async function loginUser(username, password) {
-  try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    const data = await response.json();
-    if (response.ok) {
-      currentUser = username;
-      document.getElementById("authArea").style.display = "none";
-      document.getElementById("logoutBtn").style.display = "inline-block";
-      loadUserFavoritesFromServer();
-      return true;
-    } else {
-      alert(data.error);
-      return false;
-    }
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Error during login.");
+  let userKey = "user_" + username;
+  const userDataStr = localStorage.getItem(userKey);
+  if (!userDataStr) {
+    alert("User not found. Please sign up.");
     return false;
   }
-}
-
-async function loadUserFavoritesFromServer() {
-  try {
-    const response = await fetch('/api/user');
-    if (response.ok) {
-      const data = await response.json();
-      favoriteImages = data.favorites;
-      if (document.getElementById("favoritesGrid")) {
-        renderFavoritesGallery();
-      }
-    }
-  } catch (error) {
-    console.error("Error loading favorites:", error);
+  let userData = JSON.parse(userDataStr);
+  if (userData.password !== password) {
+    alert("Incorrect password.");
+    return false;
   }
+  currentUser = username;
+  document.getElementById("authArea").style.display = "none";
+  document.getElementById("logoutBtn").style.display = "inline-block";
+  favoriteImages = userData.favorites;
+  if (document.getElementById("favoritesGrid")) {
+    renderFavoritesGallery();
+  }
+  return true;
 }
 
 function logoutUser() {
-  fetch('/api/logout')
-    .then(() => {
-      currentUser = null;
-      document.getElementById("authArea").style.display = "inline-block";
-      document.getElementById("logoutBtn").style.display = "none";
-      favoriteImages = [];
-    })
-    .catch(err => console.error("Logout error:", err));
+  currentUser = null;
+  document.getElementById("authArea").style.display = "inline-block";
+  document.getElementById("logoutBtn").style.display = "none";
+  favoriteImages = [];
 }
 
 /**********************
@@ -445,8 +405,6 @@ if (document.getElementById("generateButton")) {
     landscapeImages = [];
     allImages = [];
     renderedImages = [];
-    renderedPortraitCount = 0;
-    renderedLandscapeCount = 0;
     document.getElementById("imagesGrid").innerHTML = "";
     loadNextBatch();
   });
@@ -471,7 +429,7 @@ document.getElementById("popupOverlay").addEventListener("click", (e) => {
   }
 });
 
-// Hamburger Menu Toggle (for mobile)
+// Hamburger Menu Toggle
 document.getElementById("hamburgerMenu").addEventListener("click", () => {
   const navMenu = document.getElementById("navMenu");
   navMenu.classList.toggle("open");
@@ -523,39 +481,7 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
 // Logout Event
 document.getElementById("logoutBtn").addEventListener("click", logoutUser);
 
-// If on Favorites Page, render favorites gallery on load.
+// If on Favorites Page, render favorites gallery on load
 if (document.getElementById("favoritesGrid")) {
   renderFavoritesGallery();
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  // Close Login Modal if click outside modal content
-  const loginModal = document.getElementById("loginModal");
-  if (loginModal) {
-    loginModal.addEventListener("click", function (e) {
-      if (e.target === loginModal) {
-        loginModal.style.display = "none";
-      }
-    });
-  }
-
-  // Close Signup Modal if click outside modal content
-  const signupModal = document.getElementById("signupModal");
-  if (signupModal) {
-    signupModal.addEventListener("click", function (e) {
-      if (e.target === signupModal) {
-        signupModal.style.display = "none";
-      }
-    });
-  }
-
-  // Close Hamburger Navigation if click outside it
-  document.addEventListener("click", function (e) {
-    const navMenu = document.getElementById("navMenu");
-    const hamburger = document.getElementById("hamburgerMenu");
-    if (navMenu && navMenu.classList.contains("open") &&
-        !navMenu.contains(e.target) && !hamburger.contains(e.target)) {
-      navMenu.classList.remove("open");
-    }
-  });
-});
