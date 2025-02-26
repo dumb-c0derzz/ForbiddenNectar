@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Honey</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <h1>Honey</h1>
+      <!-- Theme Toggle Switch -->
+      <div class="theme-toggle">
+        <input type="checkbox" id="themeSwitch">
+        <label for="themeSwitch"></label>
+      </div>      
+      <!-- Hamburger Menu for Mobile -->
+      <div class="hamburger-menu" id="hamburgerMenu">
+        <span class="hamburger-icon">&#9776;</span>
+      </div>
+    </div>
+    <!-- Navigation Menu -->
+    <nav class="nav-menu" id="navMenu">
+      <ul>
+        <li><a href="./index.html">Home</a></li>
+        <li id="authArea">
+          <button class="header-btn" id="loginBtn">Login</button>
+          <button class="header-btn" id="signupBtn">Sign Up</button>
+        </li>
+        <li>
+          <button class="header-btn" id="logoutBtn" style="display:none;">Logout</button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="favorites-section">
+      <h2>Slurp it!!</h2>
+      <!-- The dynamic grouping will render complete rows (5 images per row) here -->
+      <div id="favoritesGrid" class="gallery">
+        <!-- JS will inject rows of favorite images based on their orientation -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="text" id="loginUsername" placeholder="Username" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="modal-btn">Login</button>
+      </form>
+      <button id="closeLoginModal" class="modal-btn">Close</button>
+    </div>
+  </div>
+
+  <!-- Sign Up Modal -->
+  <div id="signupModal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Sign Up</h2>
+      <form id="signupForm">
+        <input type="text" id="signupUsername" placeholder="Username" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <button type="submit" class="modal-btn">Sign Up</button>
+      </form>
+      <button id="closeSignupModal" class="modal-btn">Close</button>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>

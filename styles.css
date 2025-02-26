@@ -1,0 +1,430 @@
+/* ========== Global Reset ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ========== Color Palette & Theme Variables ========== */
+:root {
+  --bg-color: #f4f4f9;         /* Light background */
+  --text-color: #333333;       /* Dark text */
+  --header-bg: #4a90e2;        /* Vibrant blue header */
+  --header-text: #ffffff;      /* White header text */
+  --button-bg: #4a90e2;        /* Button background */
+  --button-hover: #357ab8;     /* Hover state */
+  --accent-color: #ff6b6b;     /* Accent (e.g., for favorites) */
+  --modal-bg: #ffffff;         /* Modal background */
+}
+
+body.dark {
+  --bg-color: #1c1c1c;
+  --text-color: #eeeeee;
+  --header-bg: #333333;
+  --header-text: #ffffff;
+  --button-bg: #333333;
+  --button-hover: #555555;
+  --accent-color: #66aaff;
+  --modal-bg: #2c2c2c;
+}
+
+/* ========== Global Styles ========== */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Arial', sans-serif;
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+/* ========== Header & Navigation ========== */
+header {
+  background: var(--header-bg);
+  width: 100%;
+  padding: 15px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-top {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  font-size: 2rem;
+  color: var(--header-text);
+  letter-spacing: 1px;
+}
+
+/* Theme Toggle Switch */
+.theme-toggle {
+  position: relative;
+  width: 60px;
+  height: 30px;
+  display: inline-block;
+}
+
+.theme-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-toggle label {
+  display: block;
+  width: 60px;
+  height: 30px;
+  background: #ccc;
+  border-radius: 30px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.theme-toggle label::after {
+  content: "☀️";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: transform 0.3s ease, content 0.3s ease;
+}
+
+.theme-toggle input:checked + label {
+  background: #66aaff;
+}
+
+.theme-toggle input:checked + label::after {
+  content: "🌙";
+  transform: translateX(26px);
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+  display: none;
+  cursor: pointer;
+  font-size: 1.8rem;
+  color: var(--header-text);
+}
+
+.nav-menu {
+  margin-top: 10px;
+}
+
+.nav-menu ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-menu a,
+.header-btn {
+  text-decoration: none;
+  color: var(--header-text);
+  background: var(--button-bg);
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.nav-menu a:hover,
+.header-btn:hover {
+  background: var(--button-hover);
+}
+
+/* Responsive Navigation */
+@media screen and (max-width: 768px) {
+  .hamburger-menu {
+    display: block;
+  }
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    background: var(--header-bg);
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  .nav-menu ul {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .nav-menu.open {
+    display: flex;
+  }
+}
+
+/* ========== Main Container ========== */
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+/* Action Section (Generate Button) */
+.action-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.generate-btn {
+  background: var(--button-bg);
+  border: none;
+  padding: 1rem 2rem;
+  color: var(--header-text);
+  font-size: 1.2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.generate-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== Gallery Grid & Grouping ========== */
+.gallery, .images-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Each row of the gallery */
+.gallery-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: nowrap; /* Do not wrap inside row, so we get fixed 5 per row */
+  justify-content: flex-start;
+}
+
+/* Each image container inside a row */
+.gallery-row .image-container {
+  flex: 1;
+  min-width: calc(100% / 5 - 0.8rem); /* 5 images per row, adjusting for gap */
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #1a1a1a;
+  animation: fadeIn 0.5s ease-in;
+  cursor: pointer;
+}
+
+.gallery-row .image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-row .image-container:hover img {
+  transform: scale(1.1);
+}
+
+/* ========== Favorite Icon ========== */
+.favorite-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  text-shadow: 0 0 3px rgba(0,0,0,0.7);
+  user-select: none;
+}
+
+.favorite {
+  color: var(--accent-color);
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========== Popup Overlay ========== */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  position: relative;
+  background: var(--bg-color);
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.popup-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 0.5rem;
+}
+
+.popup-btn {
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* Carousel Buttons: small circles outside the popup image */
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--button-bg);
+  border: 1px solid var(--accent-color);
+  font-size: 1.2rem;
+  color: var(--header-text);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#prevBtn {
+  left: -40px;
+}
+
+#nextBtn {
+  right: -40px;
+}
+
+.popup-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 8px;
+}
+
+/* ========== Favorites Page Styles ========== */
+.favorites-section {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.favorites-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.favorites-grid img {
+  width: 100%;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.favorites-grid img:hover {
+  transform: scale(1.05);
+}
+
+/* ========== Modal Overlays (Login & Sign Up) ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.modal-content {
+  background: var(--modal-bg);
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.modal-content input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-content button {
+  background: var(--button-bg);
+  color: var(--header-text);
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.modal-content button:hover {
+  background: var(--button-hover);
+}
+
+.modal-close {
+  background: var(--button-bg);
+  color: var(--header-text);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
